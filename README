@@ -1,0 +1,28 @@
+SDApp Backend 
+
+
+Core-Files of the SDApp
+Complete rewrite of the old, bad Spiritdesktop-Application. It will
+download a timetable of a class of the 'FH-Schmalkalden' (Computer
+Science section) via cURL and parse the JSON-File (JSONcpp).
+Data is stored as 3-dimensional array of events.
+
+Requires:
+libcURL
+JSON-cpp
+
+
+Spirit itself can be found at:
+http://spirit.fh-schmalkalden.de
+https://github.com/spirit-fhs
+
+
+Spiritdesktop and SDApp are not(!) "officialy" supported by the University
+of Applied Science Schmalkalden or PADS-LAB and thus.
+
+cURL:
+http://curl.haxx.se/
+
+JSONcpp:
+http://jsoncpp.sourceforge.net/
+(dependencies need to be added seperatly)
