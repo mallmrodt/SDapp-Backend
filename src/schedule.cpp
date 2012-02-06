@@ -240,7 +240,7 @@ event * schedule::getnext()
     {
         if(timetable[week][day][i].eventName.size()!=0)
         {
-
+            if(timetable[week][day][i].eventName.size()!=0) return &timetable[week][day][i];
         };
     }
 
