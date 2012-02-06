@@ -1,4 +1,3 @@
-#include "include/time_extend.h"
 #include <time.h>
 
 int weekofyear(struct tm localtime)

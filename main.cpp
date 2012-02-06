@@ -22,7 +22,7 @@ string readfile()
 
 int main()
 {
-    cshedule("bai1");
+    //cshedule("bai1");
 
     map<string,int> hashtable;
 
@@ -31,6 +31,7 @@ int main()
 
     schedule timetable(hashtable);
 
+    /*
     for(int i=0;i<2;i++)
     {
         for(int j=0;j<7;j++)
@@ -41,13 +42,38 @@ int main()
             }
         }
     }
+    */
 
+    /*
     vector<string> blub = grouphash();
 
     for(unsigned int i;i<blub.size();i++)
     {
         cout << blub[i] << endl;
     }
+    */
+
+    event *blub = timetable.getactual();
+
+    if(blub!=NULL)
+    {
+        cout << (*blub).eventName << endl;
+        cout << (*blub).day << endl;
+        cout << (*blub).time << endl << endl;
+    }
+
+    blub = timetable.getnext();
+
+    if(blub!=NULL)
+    {
+        cout << (*blub).eventName << endl;
+        cout << (*blub).day << endl;
+        cout << (*blub).time << endl;
+    }
+
+    cout << timetable.timedifference() << endl;
+
+    getchar();
 
     return 0;
 }

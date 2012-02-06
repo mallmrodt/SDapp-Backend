@@ -7,6 +7,36 @@ download a timetable of a class of the 'FH-Schmalkalden' (Computer
 Science section) via cURL and parse the JSON-File (JSONcpp).
 Data is stored as 3-dimensional array of events.
 
+Contains:
+schedule.h
+------------------------------------------------------------------
+- struct event:
+    string eventType;
+    string eventName;
+    string docentName;
+    string className;
+    string day;
+    string building;
+    string room;
+    string time;
+    string week;
+    string group;
+- class schedule(map<string,int>), map<string,int>: hashtable
+	string: classname
+	int: number of group;
+- schedule contains:
+	- event * getactual(); pointer to actual event
+		returns pointer to NULL if none
+	- event * getnext(); pointer to next event;
+		returns pointer to NULL if none
+	- double timedifference(); time until next event
+		currently not working, will return 0
+spiritget.h
+------------------------------------------------------------------
+CURLcode cshedule(string sclass);
+	sclass: classname that will be downloaded
+	curlcode: return 0 on success
+
 Requires:
 libcURL
 JSON-cpp
