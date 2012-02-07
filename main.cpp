@@ -32,17 +32,27 @@ int main()
     schedule timetable(hashtable);
 
     /*
+    event ptimetable[2][7][7];
+    timetable.getTimetable(ptimetable);
+
     for(int i=0;i<2;i++)
     {
         for(int j=0;j<7;j++)
         {
             for(int k=0;k<7;k++)
             {
-                cout << timetable.timetable[i][j][k].eventName << endl;
+                cout << i << j << k << " "<<ptimetable[i][j][k].eventName << endl;
             }
         }
     }
     */
+
+    event tp[7];
+    timetable.getActualDay(tp);
+    for(int i=0;i<7;i++)
+    {
+        cout << tp[i].eventName << endl;
+    }
 
     /*
     vector<string> blub = grouphash();
@@ -53,7 +63,8 @@ int main()
     }
     */
 
-    event *blub = timetable.getactual();
+    /*
+    event *blub = timetable.getActual();
 
     if(blub!=NULL)
     {
@@ -62,7 +73,7 @@ int main()
         cout << (*blub).time << endl << endl;
     }
 
-    blub = timetable.getnext();
+    blub = timetable.getNnext();
 
     if(blub!=NULL)
     {
@@ -71,9 +82,8 @@ int main()
         cout << (*blub).time << endl;
     }
 
-    cout << timetable.timedifference() << endl;
-
-    getchar();
+    cout << timetable.timeDifference() << endl;
+    */
 
     return 0;
 }

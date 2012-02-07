@@ -1,4 +1,4 @@
-#include <time.h>
+#include <ctime>
 
 int weekofyear(struct tm localtime)
 {

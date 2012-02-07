@@ -25,12 +25,13 @@ class schedule
 {
     public:
         schedule(map<string,int> groups);
-        event * getactual();
-        event * getnext();
-        double timedifference();;
+        event * getActual();
+        event * getNext();
+        double timeDifference();
+        void getTimetable(event tcopy[2][7][7]);
+        void getActualDay(event tcopy[7]);
 
     private:
-        unsigned int size;
         event timetable[2][7][7];
 };
 

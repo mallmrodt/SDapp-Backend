@@ -1,8 +1,8 @@
 #include <json/reader.h>
 #include <json/value.h>
 #include <vector>
-#include <stdio.h>
-#include <time.h>
+#include <cstdio>
+#include <ctime>
 #include "include/schedule.h"
 #include "include/time_extend.h"
 
@@ -32,7 +32,7 @@ int dayToInt(string day)
 
 int timeToInt(string time)
 {
-    if(time.compare("8.15-9.45")==0) return 0;
+    if(time.compare("08.15-09.45")==0) return 0;
     if(time.compare("10.00-11.30")==0) return 1;
     if(time.compare("11.45-13.15")==0) return 2;
     if(time.compare("14.15-15.45")==0) return 3;
@@ -61,7 +61,7 @@ int groupToInt(string group)
     return rtn;
 }
 
-vector<string> grouphash()
+vector<string> groupHash()
 {
     Json::Value root;
     Json::Reader reader;
@@ -191,10 +191,10 @@ int lTimeToInt(int hour, int min)
     if(hour==20) return 6;
     if((hour==21)&&(min==00)) return 6;
 
-    return 7;
+    return -1;
 }
 
-event * schedule::getactual()
+event * schedule::getActual()
 {
     time_t rawtime;
     struct tm * timeinfo;
@@ -215,10 +215,13 @@ event * schedule::getactual()
         return NULL;
     }
 
-    return &timetable[week][day][ltime];
+    event *rtn = new event;
+    *rtn = timetable[week][day][ltime];
+
+    return rtn;
 }
 
-event * schedule::getnext()
+event * schedule::getNext()
 {
     time_t rawtime;
     struct tm * timeinfo;
@@ -240,89 +243,99 @@ event * schedule::getnext()
     {
         if(timetable[week][day][i].eventName.size()!=0)
         {
-            if(timetable[week][day][i].eventName.size()!=0) return &timetable[week][day][i];
-        };
+            if(timetable[week][day][i].eventName.size()!=0)
+            {
+                event *rtn = new event;
+                *rtn = timetable[week][day][i];
+                return rtn;
+            }
+        }
     }
 
     for(int i=(day+1);i<7;i++)
     {
         for(int j=0;j<7;j++)
         {
-            if(timetable[week][i][j].eventName.size()!=0) return &timetable[week][i][j];
+            if(timetable[week][i][j].eventName.size()!=0)
+            {
+                event *rtn = new event;
+                *rtn = timetable[week][i][j];
+                return rtn;
+            }
         }
     }
 
     week += 1;
     if(week<1) week -= 2;
-    for(int i=(day+1);i<7;i++)
+    for(int i=0;i<7;i++)
     {
         for(int j=0;j<7;j++)
         {
-            if(timetable[week][j][i].eventName.size()!=0) return &timetable[week][j][i];
+            if(timetable[week][i][j].eventName.size()!=0)
+            {
+                event *rtn = new event;
+                *rtn = timetable[week][i][j];
+                return rtn;
+            }
         }
     }
 
     return rtn;
 }
 
-tm * toTime(int ltime)
+tm toTime(int ltime)
 {
-    time_t rawtime;
-    struct tm * timeinfo;
-
-    time (&rawtime);
-    timeinfo = localtime (&rawtime);
+    struct tm timeinfo;
 
     if(ltime == 0)
     {
-        (*timeinfo).tm_hour = 8;
-        (*timeinfo).tm_min = 15;
+        timeinfo.tm_hour = 8;
+        timeinfo.tm_min = 15;
     }
 
     if(ltime == 1)
     {
-        (*timeinfo).tm_hour = 10;
-        (*timeinfo).tm_min = 0;
+        timeinfo.tm_hour = 10;
+        timeinfo.tm_min = 0;
     }
 
     if(ltime == 2)
     {
-        (*timeinfo).tm_hour = 11;
-        (*timeinfo).tm_min = 45;
+        timeinfo.tm_hour = 11;
+        timeinfo.tm_min = 45;
     }
 
     if(ltime == 3)
     {
-        (*timeinfo).tm_hour = 14;
-        (*timeinfo).tm_min = 15;
+        timeinfo.tm_hour = 14;
+        timeinfo.tm_min = 15;
     }
 
     if(ltime == 4)
     {
-        (*timeinfo).tm_hour = 16;
-        (*timeinfo).tm_min = 00;
+        timeinfo.tm_hour = 16;
+        timeinfo.tm_min = 00;
     }
 
     if(ltime == 5)
     {
-        (*timeinfo).tm_hour = 17;
-        (*timeinfo).tm_min = 45;
+        timeinfo.tm_hour = 17;
+        timeinfo.tm_min = 45;
     }
 
     if(ltime == 6)
     {
-        (*timeinfo).tm_hour = 19;
-        (*timeinfo).tm_min = 30;
+        timeinfo.tm_hour = 19;
+        timeinfo.tm_min = 30;
     }
 
     return timeinfo;
 }
 
-double schedule::timedifference()
+double schedule::timeDifference()
 {
-    /*
     time_t rawtime;
-    struct tm *timeinfo, *timeinfo2;
+    struct tm *timeinfo;
 
     time (&rawtime);
     timeinfo = localtime (&rawtime);
@@ -339,11 +352,9 @@ double schedule::timedifference()
     {
         if(timetable[week][day][i].eventName.size()!=0)
         {
-            struct tm *timetemp = toTime(i);
+            struct tm timetemp = toTime(i);
 
-            (*timetemp).tm_hour = (*timetemp).tm_hour - (*timeinfo).tm_hour;
-            (*timetemp).tm_min = (*timetemp).tm_min - (*timeinfo).tm_min;
-            return ((*timetemp).tm_hour*60*60+(*timetemp).tm_min*60);
+            return ((timetemp.tm_hour-(*timeinfo).tm_hour)*60*60+(timetemp.tm_min-(*timeinfo).tm_min)*60-(*timeinfo).tm_sec);
         }
     }
 
@@ -353,32 +364,120 @@ double schedule::timedifference()
         {
             if(timetable[week][i][j].eventName.size()!=0)
             {
-                struct tm *timetemp = toTime(i);
+                struct tm timetemp = toTime(j);
 
-                (*timetemp).tm_hour = (*timetemp).tm_hour - (*timeinfo).tm_hour;
-                (*timetemp).tm_min = (*timetemp).tm_min - (*timeinfo).tm_min;
-                return ((i-day)*60*60*24+(*timetemp).tm_hour*60*60+(*timetemp).tm_min*60);
+                return ((i-day)*60*60*24+(timetemp.tm_hour-(*timeinfo).tm_hour)*60*60+(timetemp.tm_min-(*timeinfo).tm_min)*60-(*timeinfo).tm_sec);
             }
         }
     }
 
     week += 1;
     if(week<1) week -= 2;
-    for(int i=(day+1);i<7;i++)
+    for(int i=0;i<7;i++)
     {
         for(int j=0;j<7;j++)
         {
-            if(timetable[week][j][i].eventName.size()!=0)
+            if(timetable[week][i][j].eventName.size()!=0)
             {
-                struct tm *timetemp = toTime(i);
+                struct tm timetemp = toTime(j);
 
-                (*timeinfo2).tm_hour = (*timetemp).tm_hour - (*timeinfo2).tm_hour;
-                (*timeinfo2).tm_min = (*timetemp).tm_min - (*timeinfo2).tm_min;
-                return ((i-day)*60*60*24+(*timeinfo2).tm_hour*60*60+(*timeinfo2).tm_min*60);
+                return ((60*60*24*7)+(i-day)*60*60*24+(timetemp.tm_hour-(*timeinfo).tm_hour)*60*60+(timetemp.tm_min-(*timeinfo).tm_min)*60-(*timeinfo).tm_sec);
             }
         }
     }
-    */
 
-    return 0;
+    return -1;
+}
+
+void schedule::getTimetable(event tcopy[2][7][7])
+{
+    for(int i=0;i<2;i++) for(int j=0;j<7;j++) for(int k=0;k<7;k++)
+    {
+        tcopy[i][j][k] = timetable[i][j][k];
+    }
+}
+
+void schedule::getActualDay(event tcopy[7])
+{
+    if(getActual()!=NULL)
+    {
+        time_t rawtime;
+        struct tm * timeinfo;
+
+        time (&rawtime);
+        timeinfo = localtime (&rawtime);
+
+        int week, day;
+
+        week = weekofyear(*timeinfo) %2;
+        day = (*timeinfo).tm_wday; day--;
+        if(day<0) day += 7;
+
+        for(int i=0;i<7;i++)
+        {
+            tcopy[i] = timetable[week][day][i];
+        }
+        return;
+    }
+
+    if(getNext()!=NULL)
+    {
+        time_t rawtime;
+        struct tm * timeinfo;
+
+        time (&rawtime);
+        timeinfo = localtime (&rawtime);
+
+        int week, day, time;
+
+        week = weekofyear(*timeinfo) %2;
+        day = (*timeinfo).tm_wday; day--;
+        if(day>6) day += 7;
+
+        time = lTimeToInt((*timeinfo).tm_hour,(*timeinfo).tm_min);
+
+        for(int i=(time+1);i<7;i++)
+        {
+            if(timetable[week][day][i].eventName.size()!=0)
+            {
+                for(int l=0;l<7;l++)
+                {
+                    tcopy[l] = timetable[week][day][l];
+                }
+                return;
+            }
+        }
+
+        for(int i=(day+1);i<7;i++)
+        {
+            for(int j=0;j<7;j++)
+            {
+                if(timetable[week][i][j].eventName.size()!=0)
+                {
+                    for(int l=0;l<7;l++)
+                    {
+                        tcopy[l] = timetable[week][i][l];
+                    }
+                    return;
+                }
+            }
+        }
+
+        week += 1;
+        if(week<1) week -= 2;
+        for(int i=(day+1);i<7;i++)
+        {
+            for(int j=0;j<7;j++)
+            {
+                if(timetable[week][j][i].eventName.size()!=0)
+                {
+                    for(int l=0;l<7;l++)
+                    {
+                        tcopy[l] = timetable[week][j][l];
+                    }
+                    return;
+                }
+            }
+        }
+    }
 }
