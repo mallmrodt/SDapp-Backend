@@ -27,7 +27,6 @@ schedule.h
 - class schedule(map<string,int>), map<string,int>: hashtable
 	string: classname
 	int: number of group;
-- schedule contains:
 	- event * getactual();
 		pointer to actual event
 		returns pointer to NULL if none
@@ -42,13 +41,35 @@ schedule.h
 	- void getActualDay(event tcopy[7]);
 		inputs a array of events, fills it with events
 		of the actual day
+		
+news.h
+------------------------------------------------------------------
+- struct article:
+    string semester;
+    string name;
+    string subject;
+    string writer;
+    string lifecycle;
+    string nr;
+    string id;
+    string date;
+    string news;
+- class news()
+	- vector<article> get(string filter)
+		string filter: class name to filter to
+		returns a vector of articles that are filtered by
+		string filter
+		*note: 
+
 spiritget.h
 ------------------------------------------------------------------
 CURLcode cshedule(string sclass);
 	sclass: classname that will be downloaded as schedule.json
-	return 0 on success
+	returns 0 on success
 	schedule.json is required to run functions in schedule.h
-
+CURLcode cnews();
+	downloads the news, saves it as news.json
+	returns 0 on succcess
 Requires:
 libcURL
 JSON-cpp

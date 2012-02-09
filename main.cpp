@@ -2,6 +2,7 @@
 #include <map>
 #include "include/spiritget.h"
 #include "include/schedule.h"
+#include "include/news.h"
 
 using namespace std;
 
@@ -20,7 +21,7 @@ string readfile()
     return rtn;
 }
 
-int main()
+void blub()
 {
     //cshedule("bai1");
 
@@ -83,6 +84,28 @@ int main()
     }
 
     cout << timetable.timeDifference() << endl;
+    */
+
+}
+
+int main()
+{
+    news journal;
+
+    vector<article> filtered = journal.get("alle");
+
+    for(unsigned int i=0;i<filtered.size();i++)
+    {
+        cout << filtered[i].subject << endl;
+    }
+
+    /*
+    vector<article> blub = journal.get("");
+
+    for(unsigned int i=0;i<blub.size();i++)
+    {
+        cout << blub[i].nr << endl;
+    }
     */
 
     return 0;

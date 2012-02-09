@@ -5,4 +5,6 @@
 
 CURLcode cshedule(std::string sclass);
 
+CURLcode cnews();
+
 #endif // SPIRITGET_H
