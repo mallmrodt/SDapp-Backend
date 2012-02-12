@@ -1,3 +1,8 @@
+	╭── ┌─╮ ╭─╮
+	╰─╮ │ ╎ │╌│ ╭─╮ ╭─╮
+	──╯ └─╯ ╯ ╰ │╭╯ │╭╯
+	═══════════════════
+
 SDApp Backend 
 
 
@@ -21,23 +26,30 @@ schedule.h
     string time;
     string week;
     string group;
+
 - vector<string> grouphash();
 	returns a array of string of eventNames whose events
 	are organized in groups
-- class schedule(map<string,int>), map<string,int>: hashtable
-	string: classname
-	int: number of group;
+
+- class schedule(map<string,int>)
+	map<string,int>: hashtable
+		string: classname
+		int: number of group;
+		
 	- event * getactual();
 		pointer to actual event
 		returns pointer to NULL if none
 	- event * getnext();
 		pointer to next event;
 		returns pointer to NULL if none
+		
 	- double timedifference();
-		time until next event (now working, yay)
+		time until next event
+		
 	- void getTimetable(event tcopy[2][7][7]);
 		inputs a 3D-array of events, fills it with
 		the actual timetable
+		
 	- void getActualDay(event tcopy[7]);
 		inputs a array of events, fills it with events
 		of the actual day
@@ -54,12 +66,13 @@ news.h
     string id;
     string date;
     string news;
+    
 - class news()
 	- vector<article> get(string filter)
 		string filter: class name to filter to
 		returns a vector of articles that are filtered by
 		string filter
-		*note: 
+			"alle" returns every article
 
 spiritget.h
 ------------------------------------------------------------------
@@ -67,12 +80,15 @@ CURLcode cshedule(string sclass);
 	sclass: classname that will be downloaded as schedule.json
 	returns 0 on success
 	schedule.json is required to run functions in schedule.h
+
 CURLcode cnews();
 	downloads the news, saves it as news.json
 	returns 0 on succcess
-Requires:
-libcURL
-JSON-cpp
+	
+
+required dependencies:
+libcURL		http://curl.haxx.se/
+JSON-cpp	http://jsoncpp.sourceforge.net/
 
 
 Spirit itself can be found at:
@@ -81,11 +97,4 @@ https://github.com/spirit-fhs
 
 
 Spiritdesktop and SDApp are not(!) "officialy" supported by the University
-of Applied Science Schmalkalden or PADS-LAB and thus.
-
-cURL:
-http://curl.haxx.se/
-
-JSONcpp:
-http://jsoncpp.sourceforge.net/
-(dependencies need to be added seperatly)
+of Applied Science Schmalkalden or PADS-LAB.
