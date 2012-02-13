@@ -3,8 +3,8 @@
 #include <vector>
 #include <cstdio>
 #include <ctime>
-#include "include/schedule.h"
-#include "include/time_extend.h"
+#include "schedule.h"
+#include "time_extend.h"
 
 using namespace std;
 
@@ -239,28 +239,34 @@ event * schedule::getNext()
 
     event *rtn = NULL;
 
-    for(int i=(time+1);i<7;i++)
+    if(time!=6&&day!=6)
     {
-        if(timetable[week][day][i].eventName.size()!=0)
+        for(int i=(time+1);i<7;i++)
         {
             if(timetable[week][day][i].eventName.size()!=0)
             {
-                event *rtn = new event;
-                *rtn = timetable[week][day][i];
-                return rtn;
+                if(timetable[week][day][i].eventName.size()!=0)
+                {
+                    event *rtn = new event;
+                    *rtn = timetable[week][day][i];
+                    return rtn;
+                }
             }
         }
     }
 
-    for(int i=(day+1);i<7;i++)
+    if(day!=6)
     {
-        for(int j=0;j<7;j++)
+        for(int i=(day+1);i<7;i++)
         {
-            if(timetable[week][i][j].eventName.size()!=0)
+            for(int j=0;j<7;j++)
             {
-                event *rtn = new event;
-                *rtn = timetable[week][i][j];
-                return rtn;
+                if(timetable[week][i][j].eventName.size()!=0)
+                {
+                    event *rtn = new event;
+                    *rtn = timetable[week][i][j];
+                    return rtn;
+                }
             }
         }
     }
