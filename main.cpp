@@ -23,7 +23,7 @@ string readfile()
 
 void blub()
 {
-    //cshedule("bai1");
+    cshedule("bai1");
 
     map<string,int> hashtable;
 
@@ -91,7 +91,6 @@ void blub()
 int main()
 {
     if(cshedule("bai1")!=0) return 1;
-
     map<string,int> hashtable;
 
     hashtable[readfile()]=1;
@@ -99,6 +98,7 @@ int main()
 
     schedule timetable(hashtable);
 
+    /*
     event ptimetable[2][7][7];
     timetable.getTimetable(ptimetable);
 
@@ -112,6 +112,7 @@ int main()
             }
         }
     }
+    */
 
     /*event tp[7];
     timetable.getActualDay(tp);

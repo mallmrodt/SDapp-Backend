@@ -19,7 +19,7 @@ typedef struct event
     string group;
 }event;
 
-vector<string> grouphash();
+vector<string> groupHash();
 
 class schedule
 {

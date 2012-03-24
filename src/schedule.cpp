@@ -272,7 +272,7 @@ event * schedule::getNext()
     }
 
     week += 1;
-    if(week<1) week -= 2;
+    if(week>1) week -= 2;
     for(int i=0;i<7;i++)
     {
         for(int j=0;j<7;j++)
@@ -378,7 +378,7 @@ double schedule::timeDifference()
     }
 
     week += 1;
-    if(week<1) week -= 2;
+    if(week>1) week -= 2;
     for(int i=0;i<7;i++)
     {
         for(int j=0;j<7;j++)
