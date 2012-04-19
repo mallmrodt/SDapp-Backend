@@ -3,6 +3,7 @@
 #include <vector>
 #include <cstdio>
 #include <ctime>
+#include <stdlib.h>
 #include "schedule.h"
 #include "time_extend.h"
 
@@ -45,7 +46,7 @@ int timeToInt(string time)
 
 int groupToInt(string group)
 {
-    int rtn;
+    int rtn=0;
     char c=0;
 
     for(unsigned int i=0;i<group.size();i++)
@@ -61,48 +62,33 @@ int groupToInt(string group)
     return rtn;
 }
 
-vector<string> groupHash()
+vector<string> schedule::groupHash()
 {
-    Json::Value root;
-    Json::Reader reader;
-    FILE *fp = fopen("schedule.json","r");
-    char c=fgetc(fp);
-    string sched;
-    while(c!=-1)
+    vector<string> rtn;
+
+    for(unsigned int i=0;i<evList.size();i++)
     {
-        sched.append(1,c);
-        c = fgetc(fp);
-    };
-
-    fclose(fp);
-
-    reader.parse(sched,root,false);
-
-    vector<string> rtn, *prtn=&rtn;
-
-    for(unsigned int i=0;i<root.size();i++)
-    {
-        int group = groupToInt(root[i].get("group","Missigno").asString());
+        int group = groupToInt(evList[i].group);
 
         if(group!=0)
         {
-            if((*prtn).size()==0)
+            if(rtn.size()==0)
             {
-                cout << root[i].get("titleShort","Missigno").asString() << endl;
-                (*prtn).push_back(root[i].get("titleShort","Missigno").asString());
+                //cout << evList[i].eventName << endl;
+                rtn.push_back(evList[i].eventName);
             }
             else
             {
                 bool exists=false;
-                for(unsigned int j=0;j<(*prtn).size();j++)
+                for(unsigned int j=0;j<rtn.size();j++)
                 {
-                    if(root[i].get("titleShort","Missigno").asString() == (*prtn)[j]) exists = true;
+                    if(evList[i].eventName == rtn[j]) exists = true;
                 }
 
                 if(!exists)
                 {
-                    cout << root[i].get("titleShort","Missigno").asString() << endl;
-                    (*prtn).push_back(root[i].get("titleShort","Missigno").asString());
+                    //cout << evList[i].eventName << endl;
+                    rtn.push_back(evList[i].eventName);
                 }
             }
         }
@@ -111,7 +97,7 @@ vector<string> groupHash()
     return rtn;
 }
 
-schedule::schedule(map<string,int> groups)
+schedule::schedule()
 {
     Json::Value root;
     Json::Reader reader;
@@ -130,11 +116,32 @@ schedule::schedule(map<string,int> groups)
 
     for(unsigned int i=0;i<root.size();i++)
     {
+        event temp;
+
+        temp.eventType = root[i].get("eventType","").asString();
+        temp.eventName = root[i].get("titleShort","").asString();
+        temp.docentName = root[i].get("member","")[0u].get("name","").asString();
+        temp.className = root[i].get("className","").asString();
+        temp.day = root[i].get("appointment","").get("day","").asString();
+        temp.building = root[i].get("appointment","").get("location","").get("building","").asString();
+        temp.room = root[i].get("appointment","").get("location","").get("room","").asString();
+        temp.time = root[i].get("appointment","").get("time","").asString();
+        temp.week = root[i].get("appointment","").get("week","").asString();
+        temp.group = root[i].get("group","").asString();
+
+        evList.push_back(temp);
+    }
+}
+
+void schedule::init(map<string,int> groups)
+{
+    for(unsigned int i=0;i<evList.size();i++)
+    {
         int day, week, time, group;
-        week = weekToInt(root[i].get("appointment","").get("week","").asString());
-        day = dayToInt(root[i].get("appointment","").get("day","").asString());
-        time = timeToInt(root[i].get("appointment","").get("time","").asString());
-        group = groupToInt(root[i].get("group","").asString());
+        week = weekToInt(evList[i].week);
+        day = dayToInt(evList[i].day);
+        time = timeToInt(evList[i].time);
+        group = groupToInt(evList[i].group);
 
         int j=0,h=0;
 
@@ -142,25 +149,25 @@ schedule::schedule(map<string,int> groups)
         if(week==1) {j=1; h = 2;}
         if(week==2) {j=0; h = 2;}
 
-        map<string,int>::iterator it = groups.find(root[i].get("titleShort","").asString());
+        map<string,int>::iterator it = groups.find(evList[i].eventName);
 
         if( ( it!= groups.end() ) &&
             ( group!=it->second ) &&
-            ( root[i].get("eventType","notFound").asString()=="Uebung")
+            ( evList[i].eventType=="Uebung")
             ) continue;
 
         for(;j<h;j++)
         {
-            timetable[j][day][time].eventType = root[i].get("eventType","").asString();
-            timetable[j][day][time].eventName = root[i].get("titleShort","").asString();
-            timetable[j][day][time].docentName = root[i].get("member","")[0u].get("name","").asString();
-            timetable[j][day][time].className = root[i].get("className","").asString();
-            timetable[j][day][time].day = root[i].get("appointment","").get("day","").asString();
-            timetable[j][day][time].building = root[i].get("appointment","").get("location","").get("building","").asString();
-            timetable[j][day][time].room = root[i].get("appointment","").get("location","").get("room","").asString();
-            timetable[j][day][time].time = root[i].get("appointment","").get("time","").asString();
-            timetable[j][day][time].week = root[i].get("appointment","").get("week","").asString();
-            timetable[j][day][time].group = root[i].get("group","").asString();
+            timetable[j][day][time].eventType = evList[i].eventType;
+            timetable[j][day][time].eventName = evList[i].eventName;
+            timetable[j][day][time].docentName = evList[i].docentName;
+            timetable[j][day][time].className = evList[i].className;
+            timetable[j][day][time].day = evList[i].day;
+            timetable[j][day][time].building = evList[i].building;
+            timetable[j][day][time].room = evList[i].room;
+            timetable[j][day][time].time = evList[i].time;
+            timetable[j][day][time].week = evList[i].week;
+            timetable[j][day][time].group = evList[i].group;
         }
     }
 }

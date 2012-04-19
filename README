@@ -27,31 +27,35 @@ schedule.h
     string week;
     string group;
 
-- vector<string> grouphash();
-	returns a array of string of eventNames whose events
-	are organized in groups
-
-- class schedule(map<string,int>)
+- class schedule()
 	map<string,int>: hashtable
 		string: classname
 		int: number of group;
 		
+	init(map<string,int>)
+		initalisation of 3D array of events
+		requires hashtable of event names & group number
+	vector<string> grouphash();
+		returns a array of string of eventNames whose events
+		are organized in groups
+		
 	- event * getactual();
 		pointer to actual event
 		returns pointer to NULL if none
+		
 	- event * getnext();
 		pointer to next event;
 		returns pointer to NULL if none
 		
 	- double timedifference();
-		time until next event
+		time until next event in seconds
 		
 	- void getTimetable(event tcopy[2][7][7]);
 		inputs a 3D-array of events, fills it with
 		the actual timetable
 		
 	- void getActualDay(event tcopy[7]);
-		inputs a array of events, fills it with events
+		inputs a 1D-array of events, fills it with events
 		of the actual day
 		
 news.h

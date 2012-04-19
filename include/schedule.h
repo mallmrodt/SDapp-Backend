@@ -19,12 +19,12 @@ typedef struct event
     string group;
 }event;
 
-vector<string> groupHash();
-
 class schedule
 {
     public:
-        schedule(map<string,int> groups);
+        schedule();
+        vector<string> groupHash();
+        void init(map<string,int> groups);
         event * getActual();
         event * getNext();
         double timeDifference();
@@ -32,6 +32,7 @@ class schedule
         void getActualDay(event tcopy[7]);
 
     private:
+        vector<event> evList;
         event timetable[2][7][7];
 };
 

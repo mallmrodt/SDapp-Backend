@@ -6,170 +6,55 @@
 
 using namespace std;
 
-string readfile()
-{
-    string rtn;
-    FILE *fp = fopen("blub","r");
-    char c = fgetc(fp);
-
-    while(c!=-1)
-    {
-        rtn += c;
-        c = fgetc(fp);
-    }
-
-    return rtn;
-}
-
-void blub()
-{
-    cshedule("bai1");
-
-    map<string,int> hashtable;
-
-    hashtable[readfile()]=1;
-    hashtable["Gr InfV"]=1;
-
-    schedule timetable(hashtable);
-
-    /*
-    event ptimetable[2][7][7];
-    timetable.getTimetable(ptimetable);
-
-    for(int i=0;i<2;i++)
-    {
-        for(int j=0;j<7;j++)
-        {
-            for(int k=0;k<7;k++)
-            {
-                cout << i << j << k << " "<<ptimetable[i][j][k].eventName << endl;
-            }
-        }
-    }
-    */
-
-    event tp[7];
-    timetable.getActualDay(tp);
-    for(int i=0;i<7;i++)
-    {
-        cout << tp[i].eventName << endl;
-    }
-
-    /*
-    vector<string> blub = grouphash();
-
-    for(unsigned int i;i<blub.size();i++)
-    {
-        cout << blub[i] << endl;
-    }
-    */
-
-    /*
-    event *blub = timetable.getActual();
-
-    if(blub!=NULL)
-    {
-        cout << (*blub).eventName << endl;
-        cout << (*blub).day << endl;
-        cout << (*blub).time << endl << endl;
-    }
-
-    blub = timetable.getNnext();
-
-    if(blub!=NULL)
-    {
-        cout << (*blub).eventName << endl;
-        cout << (*blub).day << endl;
-        cout << (*blub).time << endl;
-    }
-
-    cout << timetable.timeDifference() << endl;
-    */
-
-}
-
 int main()
 {
-    if(cshedule("bai1")!=0) return 1;
-    map<string,int> hashtable;
+    if(cshedule("bai2")!=0) return 1;                        //curl instruction for downloading schedule of 'bai2'
 
-    hashtable[readfile()]=1;
-    hashtable["Gr InfV"]=1;
+    schedule sched;                                          //class initialisation
 
-    schedule timetable(hashtable);
-
-    /*
-    event ptimetable[2][7][7];
-    timetable.getTimetable(ptimetable);
-
-    for(int i=0;i<2;i++)
     {
-        for(int j=0;j<7;j++)
-        {
-            for(int k=0;k<7;k++)
-            {
-                cout << i << j << k << " "<<ptimetable[i][j][k].eventName << endl;
-            }
-        }
-    }
-    */
+        vector<string> tmp;
+        tmp = sched.groupHash();                             //returns the events divided in groups
 
-    /*event tp[7];
-    timetable.getActualDay(tp);
-    for(int i=0;i<7;i++)
-    {
-        cout << tp[i].eventName << endl;
-    }*/
-
-    /*
-    vector<string> blub = grouphash();
-
-    for(unsigned int i;i<blub.size();i++)
-    {
-        cout << blub[i] << endl;
-    }
-    */
-
-    event *blub = timetable.getActual();
-
-    if(blub!=NULL)
-    {
-        cout << (*blub).eventName << endl;
-        cout << (*blub).day << endl;
-        cout << (*blub).time << endl << endl;
+        for(unsigned int i=0;i<tmp.size();i++) cout << tmp[i] << endl;
+        cout << endl;
     }
 
-    blub = timetable.getNext();
-
-    if(blub!=NULL)
+    map<string,int> hashtable;                              //Hashtable for initalisation
     {
-        cout << (*blub).eventName << endl;
-        cout << (*blub).day << endl;
-        cout << (*blub).time << endl;
+        hashtable["OOP"]=1;
+        hashtable["MPT"]=1;
+        hashtable["Afs"]=1;
+        hashtable["SWE"]=1;
+        hashtable["AgK Ma"]=1;
     }
 
-    cout << timetable.timeDifference() << endl;
+    sched.init(hashtable);                                   //Initialisation of 3D array, excluding events of different group(s) according to hashtable
 
-
-    /*
-    news journal;
-
-    vector<article> filtered = journal.get("alle");
-
-    for(unsigned int i=0;i<filtered.size();i++)
     {
-        cout << filtered[i].subject << endl;
+        event * tmp;
+
+        tmp = sched.getActual();
+        if(tmp!=NULL) cout << tmp->eventName << endl;
+
+        tmp = sched.getNext();
+        if(tmp!=NULL) cout << tmp->eventName;
+
+        int h, min, sec, diff = sched.timeDifference();     //timeDifference() returns time till next event in seconds
+        h = diff/3600; diff -= h*3600;
+        min = diff / 60; diff -= min*60;
+        sec = diff;
+
+        cout << "\t" << h << "h: "  << min << "min: " << sec << "sec" << endl;
     }
-    */
 
-    /*
-    vector<article> blub = journal.get("");
-
-    for(unsigned int i=0;i<blub.size();i++)
     {
-        cout << blub[i].nr << endl;
+        event evToday[7];
+        sched.getActualDay(evToday);          //getActualDay() fills 1D-array of events on the actual day (according Initialisation)
+
+        event evComplete[2][7][7];
+        sched.getTimetable(evComplete);   //getTimetable() fills 3D-array of all events (accodring Initalisation)
     }
-    */
 
     return 0;
 }
