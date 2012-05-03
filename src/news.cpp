@@ -2,10 +2,13 @@
 #include <cstdio>
 #include <vector>
 #include <string>
+#include <cstring>
+
 #include <json/reader.h>
 #include <json/value.h>
-#include <cstring>
+
 #include "spirit/news.h"
+#include "spirit/exception.h"
 
 using namespace std;
 
@@ -31,7 +34,7 @@ void news::sort()
     }
 }
 
-news::news()
+void news::init()
 {
     Json::Value root;
     Json::Reader reader;
@@ -46,24 +49,51 @@ news::news()
 
     fclose(fp);
 
-    reader.parse(sched,root,false);
+    if(!reader.parse(sched,root,false))
+    {
+        spError exc(spError::JSON_ERROR);
+        throw(exc);
+    }
 
     for(unsigned int i=0;i<root.size();i++)
     {
         article newArticle;
         string text;
 
-        newArticle.semester = root[i].get("semester","").asString();
-        newArticle.name = root[i].get("name","").asString();
+        newArticle.semester = root[i].get("semester","Missigno").asString();
+        newArticle.name = root[i].get("name","Missigno").asString();
         newArticle.subject = root[i].get("subject","none").asString();
-        newArticle.writer = root[i].get("writer","").asString();
-        newArticle.lifecycle = root[i].get("lifecycle","").asString();
-        newArticle.nr = root[i].get("nr","").asString();
-        newArticle.id = root[i].get("_id","").asString();
-        newArticle.date = root[i].get("date","").asString();
-        newArticle.news = root[i].get("news","").asString();
+        newArticle.writer = root[i].get("writer","Missigno").asString();
+        newArticle.lifecycle = root[i].get("lifecycle","Missigno").asString();
+        newArticle.nr = root[i].get("nr","Missigno").asString();
+        newArticle.id = root[i].get("_id","Missigno").asString();
+        newArticle.date = root[i].get("date","Missigno").asString();
+        newArticle.news = root[i].get("news","Missigno").asString();
 
         journal.push_back(newArticle);
+    }
+
+    if(journal.size()==0)
+    {
+        spError exc(spError::NO_NEWS_ERROR);
+        throw(exc);
+    }
+
+    for(unsigned int i=0;i<journal.size();i++)
+    {
+        if((journal[i].semester=="Missigno") ||
+           (journal[i].name=="Missigno") ||
+           (journal[i].subject=="Missigno") ||
+           (journal[i].writer=="Missigno") ||
+           (journal[i].lifecycle=="Missigno") ||
+           (journal[i].nr=="Missigno") ||
+           (journal[i].id=="Missigno") ||
+           (journal[i].date=="Missigno") ||
+           (journal[i].news=="Missigno"))
+        {
+            spError exc(spError::FALSE_NAMING_ERROR);
+            throw(exc);
+        }
     }
 
     sort();

@@ -1,20 +1,23 @@
 #include <iostream>
 #include <map>
+
 #include "spirit/spiritget.h"
 #include "spirit/schedule.h"
 #include "spirit/news.h"
+#include "spirit/exception.h"
 
 using namespace std;
 
-int main()
+void runSched()
 {
-    if(cshedule("bai2")!=0) return 1;                        //curl instruction for downloading schedule of 'bai2'
-
     schedule sched;                                          //class initialisation
 
+    //sched.download("bai2");
+
+    sched.initJson();
+
     {
-        vector<string> tmp;
-        tmp = sched.groupHash();                             //returns the events divided in groups
+        vector<string> tmp = sched.groupHash();                             //returns the events divided in groups
 
         for(unsigned int i=0;i<tmp.size();i++) cout << tmp[i] << endl;
         cout << endl;
@@ -29,7 +32,7 @@ int main()
         hashtable["AgK Ma"]=1;
     }
 
-    sched.init(hashtable);                                   //Initialisation of 3D array, excluding events of different group(s) according to hashtable
+    sched.initGrp(hashtable);                                   //Initialisation of 3D array, excluding events of different group(s) according to hashtable
 
     {
         event * tmp;
@@ -55,11 +58,53 @@ int main()
         event evComplete[2][7][7];
         sched.getTimetable(evComplete);   //getTimetable() fills 3D-array of all events (accodring Initalisation)
     }
+}
+
+void runNews()
+{
+    news fhNews;
+
+    //fhNews.cdownload();
+
+    fhNews.init();
+
+    vector<article> bai2 = fhNews.get("BAI2");
+
+    for(unsigned int i=0;i<bai2.size();i++)
+    {
+        cout << bai2[i].subject << endl;
+    }
+}
+
+int main()
+{
+    try
+    {
+        runSched();
+    }
+    catch(spError exc)
+    {
+        cout << "ScheduleException: " << exc.errorCode << endl;
+    }
+    catch(...)
+    {
+        cout << "UNKNOWN_EXCEPTION_SCHEDULE";
+    }
+
+    cout << endl << endl;
+
+    try
+    {
+        runNews();
+    }
+    catch(spError exc)
+    {
+        cout << "NewsException: " << exc.errorCode << endl;
+    }
+    catch(...)
+    {
+        cout << "UNKNOWN_EXCEPTION_NEWS";
+    }
 
     return 0;
 }
-
-/*cout << root[0u].get("member","___")[0u].get("name","...").asString() << endl;
-cout << root.size() << endl;*/
-
-//cout << root[0u].get("name","").asString() << endl;

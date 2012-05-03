@@ -1,10 +1,12 @@
 #ifndef SPIRITGET_H
 #define SPIRITGET_H
-#include <curl/curl.h>
+
 #include <string>
 
-CURLcode cshedule(std::string sclass);
+#include <curl/curl.h>
 
-CURLcode cnews();
+void cschedule(std::string sclass);
+
+void cnews();
 
 #endif // SPIRITGET_H

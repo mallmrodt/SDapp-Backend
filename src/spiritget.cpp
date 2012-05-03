@@ -1,7 +1,10 @@
 #include <iostream>
 #include <string>
+
 #include <curl/curl.h>
+
 #include "spirit/spiritget.h"
+#include "spirit/exception.h"
 
 using namespace std;
 
@@ -13,7 +16,7 @@ string linkgen(string sclass)
     return url;
 }
 
-CURLcode cshedule(string sclass)
+void cschedule(string sclass)
 {
     CURL *curl;
     CURLcode res;
@@ -41,13 +44,14 @@ CURLcode cshedule(string sclass)
     {
         remove("schedule.json");
         rename("_schedule.json","schedule.json");
+
+        spError exc(spError::CURL_ERROR,res);
+        throw(exc);
     }
     remove("_schedule.json");
-
-    return res;
 }
 
-CURLcode cnews()
+void cnews()
 {
     CURL *curl;
     CURLcode res;
@@ -75,8 +79,9 @@ CURLcode cnews()
     {
         remove("news.json");
         rename("_news.json","news.json");
+
+        spError exc(spError::CURL_ERROR,res);
+        throw(exc);
     }
     remove("_news.json");
-
-    return res;
 }

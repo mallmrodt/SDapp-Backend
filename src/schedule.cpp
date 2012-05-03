@@ -1,11 +1,14 @@
-#include <json/reader.h>
-#include <json/value.h>
 #include <vector>
 #include <cstdio>
 #include <ctime>
 #include <stdlib.h>
+
+#include <json/reader.h>
+#include <json/value.h>
+
 #include "spirit/schedule.h"
 #include "spirit/time_extend.h"
+#include "spirit/exception.h"
 
 using namespace std;
 
@@ -14,6 +17,9 @@ int weekToInt(string week)
     if(week.compare("w")==0) return 2;
     if(week.compare("g")==0) return 0;
     if(week.compare("u")==0) return 1;
+
+    spError exc(spError::WEEK_PARSE_ERROR);
+    throw(exc);
 
     return -1;
 }
@@ -28,7 +34,10 @@ int dayToInt(string day)
     if(day.compare("Samstag")==0) return 5;
     if(day.compare("Sonntag")==0) return 6;
 
-    return 0;
+    spError exc(spError::DAY_PARSE_ERROR);
+    throw(exc);
+
+    return -1;
 }
 
 int timeToInt(string time)
@@ -41,12 +50,15 @@ int timeToInt(string time)
     if(time.compare("17.45-19.15")==0) return 5;
     if(time.compare("19.30-21.00")==0) return 6;
 
+    spError exc(spError::TIME_PARSE_ERROR);
+    throw(exc);
+
     return -1;
 }
 
 int groupToInt(string group)
 {
-    int rtn=0;
+    int rtn=-1;
     char c=0;
 
     for(unsigned int i=0;i<group.size();i++)
@@ -55,9 +67,13 @@ int groupToInt(string group)
         if((c>47)&&(c<58)) break;
     }
 
-    if(c==48) rtn = 0;
-    if(c==49) rtn = 1;
-    if(c==50) rtn = 2;
+    rtn = atoi(&c);
+
+    if((rtn<0)||(rtn>9))
+    {
+        spError exc(spError::GROUP_PARSE_ERROR);
+        throw(exc);
+    }
 
     return rtn;
 }
@@ -97,13 +113,14 @@ vector<string> schedule::groupHash()
     return rtn;
 }
 
-schedule::schedule()
+void schedule::initJson()
 {
     Json::Value root;
     Json::Reader reader;
     FILE *fp = fopen("schedule.json","r");
     char c=fgetc(fp);
     string sched;
+
     while(c!=-1)
     {
         sched.append(1,c);
@@ -112,28 +129,50 @@ schedule::schedule()
 
     fclose(fp);
 
-    reader.parse(sched,root,false);
+    if(!reader.parse(sched,root,false))
+    {
+        spError exc(spError::JSON_ERROR);
+        throw(exc);
+    }
 
     for(unsigned int i=0;i<root.size();i++)
     {
         event temp;
 
-        temp.eventType = root[i].get("eventType","").asString();
-        temp.eventName = root[i].get("titleShort","").asString();
-        temp.docentName = root[i].get("member","")[0u].get("name","").asString();
-        temp.className = root[i].get("className","").asString();
-        temp.day = root[i].get("appointment","").get("day","").asString();
-        temp.building = root[i].get("appointment","").get("location","").get("building","").asString();
-        temp.room = root[i].get("appointment","").get("location","").get("room","").asString();
-        temp.time = root[i].get("appointment","").get("time","").asString();
-        temp.week = root[i].get("appointment","").get("week","").asString();
-        temp.group = root[i].get("group","").asString();
+        temp.eventType = root[i].get("eventType","Missigno").asString();
+        temp.eventName = root[i].get("titleShort","Missigno").asString();
+        temp.docentName = root[i].get("member","")[0u].get("name","Missigno").asString();
+        temp.className = root[i].get("className","Missigno").asString();
+        temp.day = root[i].get("appointment","Missigno").get("day","Missigno").asString();
+        temp.building = root[i].get("appointment","").get("location","Missigno").get("place","Missigno").get("building","Missigno").asString();
+        temp.room = root[i].get("appointment","").get("location","").get("place","").get("room","Missigno").asString();
+        temp.time = root[i].get("appointment","").get("time","Missigno").asString();
+        temp.week = root[i].get("appointment","").get("week","Missigno").asString();
+        temp.group = root[i].get("group","Missigno").asString();
 
         evList.push_back(temp);
     }
+
+    for(unsigned int i=0;i<evList.size();i++)
+    {
+        if((evList[i].eventType=="Missigno") ||
+           (evList[i].eventName=="Missigno") ||
+           (evList[i].docentName=="Missigno") ||
+           (evList[i].className=="Missigno") ||
+           (evList[i].day=="Missigno") ||
+           (evList[i].building=="Missigno") ||
+           (evList[i].room=="Missigno") ||
+           (evList[i].time=="Missigno") ||
+           (evList[i].week=="Missigno") ||
+           (evList[i].group=="Missigno"))
+        {
+            spError exc(spError::FALSE_NAMING_ERROR);
+            throw(exc);
+        }
+    }
 }
 
-void schedule::init(map<string,int> groups)
+void schedule::initGrp(map<string,int> groups)
 {
     for(unsigned int i=0;i<evList.size();i++)
     {
@@ -172,35 +211,42 @@ void schedule::init(map<string,int> groups)
     }
 }
 
+//determining current time
 int lTimeToInt(int hour, int min)
 {
+    if(hour<8) return -1;
+    if((hour==8)&&(min<15)) return -1;
+
     if((hour==8)&&(min>=15)) return 0;
-    if((hour==9)&&(min<=45)) return 0;
+    if((hour==9)&&(min<=59)) return 0;
 
     if(hour==10) return 1;
-    if((hour==11)&&(min<=30)) return 1;
+    if((hour==11)&&(min<44)) return 1;
 
     if((hour==11)&&(min>=45)) return 2;
-    if(hour==13) return 2;
-    if((hour==13)&&(min<=15)) return 2;
+    if(hour==12) return 2;
+    if((hour==13)&&(min<15)) return 2;
 
     if((hour==14)&&(min>=15)) return 3;
-    if((hour==15)&&(min<=45)) return 3;
+    if((hour==15)&&(min<=59)) return 3;
 
     if(hour==16) return 4;
-    if((hour==17)&&(min<=30)) return 4;
+    if((hour==17)&&(min<45)) return 4;
 
     if((hour==17)&&(min>=45)) return 5;
     if(hour==18) return 5;
-    if((hour==19)&&(min<=15)) return 5;
+    if((hour==19)&&(min<30)) return 5;
 
+    /* last event or later time doesn't matter for program
     if((hour==19)&&(min>=30)) return 6;
     if(hour==20) return 6;
     if((hour==21)&&(min==00)) return 6;
+    */
 
-    return -1;
+    return 6;
 }
 
+//getting event at current time
 event * schedule::getActual()
 {
     time_t rawtime;
@@ -212,15 +258,12 @@ event * schedule::getActual()
     int week, day, ltime;
 
     week = weekofyear(*timeinfo) %2;
-    day = (*timeinfo).tm_wday; day--;
+    day = (*timeinfo).tm_wday;day--;
     if(day<0) day += 7;
 
     ltime = lTimeToInt((*timeinfo).tm_hour,(*timeinfo).tm_min);
 
-    if((ltime==-1)||(timetable[week][day][ltime].eventName.size()==0))
-    {
-        return NULL;
-    }
+    if((ltime==-1)||(timetable[week][day][ltime].eventName.size()==0)) return NULL;
 
     event *rtn = new event;
     *rtn = timetable[week][day][ltime];
@@ -228,6 +271,7 @@ event * schedule::getActual()
     return rtn;
 }
 
+//getting next event that will be held
 event * schedule::getNext()
 {
     time_t rawtime;
@@ -246,6 +290,7 @@ event * schedule::getNext()
 
     event *rtn = NULL;
 
+    //looking for event on same day
     if(time!=6&&day!=6)
     {
         for(int i=(time+1);i<7;i++)
@@ -262,6 +307,7 @@ event * schedule::getNext()
         }
     }
 
+    //loking for events on same week
     if(day!=6)
     {
         for(int i=(day+1);i<7;i++)
@@ -278,6 +324,8 @@ event * schedule::getNext()
         }
     }
 
+
+    //looking for events on next week
     week += 1;
     if(week>1) week -= 2;
     for(int i=0;i<7;i++)
@@ -292,6 +340,9 @@ event * schedule::getNext()
             }
         }
     }
+
+    spError exc(spError::NO_EVENT_ERROR);
+    throw(exc);
 
     return rtn;
 }
@@ -355,22 +406,28 @@ double schedule::timeDifference()
 
     int week, day, ltime;
 
+    //getting current week & day of the week
     week = weekofyear(*timeinfo) %2;
     day = (*timeinfo).tm_wday; day--;
-    if(day>6) day += 7;
+    if(day>6) day -= 7;
 
+    //getting current time; falsely called local time :/
     ltime = lTimeToInt((*timeinfo).tm_hour,(*timeinfo).tm_min);
 
+    //locing for event on the same day
     for(int i=(ltime+1);i<7;i++)
     {
         if(timetable[week][day][i].eventName.size()!=0)
         {
             struct tm timetemp = toTime(i);
 
+            cout << timetemp.tm_hour << (*timeinfo).tm_hour << endl;
+
             return ((timetemp.tm_hour-(*timeinfo).tm_hour)*60*60+(timetemp.tm_min-(*timeinfo).tm_min)*60-(*timeinfo).tm_sec);
         }
     }
 
+    //looking for events on remaining week
     for(int i=(day+1);i<7;i++)
     {
         for(int j=0;j<7;j++)
@@ -384,6 +441,7 @@ double schedule::timeDifference()
         }
     }
 
+    //looking for events on next week
     week += 1;
     if(week>1) week -= 2;
     for(int i=0;i<7;i++)
@@ -402,6 +460,7 @@ double schedule::timeDifference()
     return -1;
 }
 
+//getting complete timetable (minds group)
 void schedule::getTimetable(event tcopy[2][7][7])
 {
     for(int i=0;i<2;i++) for(int j=0;j<7;j++) for(int k=0;k<7;k++)
@@ -410,87 +469,24 @@ void schedule::getTimetable(event tcopy[2][7][7])
     }
 }
 
+//getting events on today (minds group)
 void schedule::getActualDay(event tcopy[7])
 {
-    if(getActual()!=NULL)
+    time_t rawtime;
+    struct tm * timeinfo;
+
+    time (&rawtime);
+    timeinfo = localtime (&rawtime);
+
+    int week, day;
+
+    week = weekofyear(*timeinfo) %2;
+    day = (*timeinfo).tm_wday; day--;
+    if(day<0) day += 7;
+
+    for(int i=0;i<7;i++)
     {
-        time_t rawtime;
-        struct tm * timeinfo;
-
-        time (&rawtime);
-        timeinfo = localtime (&rawtime);
-
-        int week, day;
-
-        week = weekofyear(*timeinfo) %2;
-        day = (*timeinfo).tm_wday; day--;
-        if(day<0) day += 7;
-
-        for(int i=0;i<7;i++)
-        {
-            tcopy[i] = timetable[week][day][i];
-        }
-        return;
+        tcopy[i] = timetable[week][day][i];
     }
-
-    if(getNext()!=NULL)
-    {
-        time_t rawtime;
-        struct tm * timeinfo;
-
-        time (&rawtime);
-        timeinfo = localtime (&rawtime);
-
-        int week, day, time;
-
-        week = weekofyear(*timeinfo) %2;
-        day = (*timeinfo).tm_wday; day--;
-        if(day>6) day += 7;
-
-        time = lTimeToInt((*timeinfo).tm_hour,(*timeinfo).tm_min);
-
-        for(int i=(time+1);i<7;i++)
-        {
-            if(timetable[week][day][i].eventName.size()!=0)
-            {
-                for(int l=0;l<7;l++)
-                {
-                    tcopy[l] = timetable[week][day][l];
-                }
-                return;
-            }
-        }
-
-        for(int i=(day+1);i<7;i++)
-        {
-            for(int j=0;j<7;j++)
-            {
-                if(timetable[week][i][j].eventName.size()!=0)
-                {
-                    for(int l=0;l<7;l++)
-                    {
-                        tcopy[l] = timetable[week][i][l];
-                    }
-                    return;
-                }
-            }
-        }
-
-        week += 1;
-        if(week<1) week -= 2;
-        for(int i=(day+1);i<7;i++)
-        {
-            for(int j=0;j<7;j++)
-            {
-                if(timetable[week][j][i].eventName.size()!=0)
-                {
-                    for(int l=0;l<7;l++)
-                    {
-                        tcopy[l] = timetable[week][j][l];
-                    }
-                    return;
-                }
-            }
-        }
-    }
+    return;
 }

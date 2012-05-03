@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include "spirit/spiritget.h"
+
 using namespace std;
 
 typedef struct article
@@ -21,7 +23,8 @@ typedef struct article
 class news
 {
     public:
-        news();
+        void init();
+        void cdownload() {cnews();};
         vector<article> get(string filter);
 
     private:

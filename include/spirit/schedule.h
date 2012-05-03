@@ -2,6 +2,9 @@
 #define SCHEDULE_H
 
 #include<vector>
+#include<map>
+
+#include "spirit/spiritget.h"
 
 using namespace std;
 
@@ -22,9 +25,10 @@ typedef struct event
 class schedule
 {
     public:
-        schedule();
+        void initJson();
+        void download(string sclass) {cschedule(sclass);};
         vector<string> groupHash();
-        void init(map<string,int> groups);
+        void initGrp(map<string,int> groups);
         event * getActual();
         event * getNext();
         double timeDifference();
