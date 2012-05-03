@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <curl/curl.h>
-#include "spiritget.h"
+#include "spirit/spiritget.h"
 
 using namespace std;
 

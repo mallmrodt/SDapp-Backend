@@ -5,7 +5,7 @@
 #include <json/reader.h>
 #include <json/value.h>
 #include <cstring>
-#include "news.h"
+#include "spirit/news.h"
 
 using namespace std;
 

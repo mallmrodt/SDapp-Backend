@@ -4,8 +4,8 @@
 #include <cstdio>
 #include <ctime>
 #include <stdlib.h>
-#include "schedule.h"
-#include "time_extend.h"
+#include "spirit/schedule.h"
+#include "spirit/time_extend.h"
 
 using namespace std;
 

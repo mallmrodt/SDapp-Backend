@@ -1,8 +1,8 @@
 #include <iostream>
 #include <map>
-#include "spiritget.h"
-#include "schedule.h"
-#include "news.h"
+#include "spirit/spiritget.h"
+#include "spirit/schedule.h"
+#include "spirit/news.h"
 
 using namespace std;
 
