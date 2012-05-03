@@ -13,7 +13,7 @@ Science section) via cURL and parse the JSON-File (JSONcpp).
 Data is stored as 3-dimensional array of events.
 
 Contains:
-schedule.h
+spirit/schedule.h
 ------------------------------------------------------------------
 - struct event:
     string eventType;
@@ -28,14 +28,22 @@ schedule.h
     string group;
 
 - class schedule()
-	map<string,int>: hashtable
+	- void cdownload(string sclass);
+		downloads schedule for a specific class and saves
+		it as schedule.json
+	
+	- void initJson();
+		parses the schedule.json to the class
+	
+	- map<string,int>: hashtable
 		string: classname
 		int: number of group;
 		
-	init(map<string,int>)
+	- initGrp(map<string,int>);
 		initalisation of 3D array of events
 		requires hashtable of event names & group number
-	vector<string> grouphash();
+		
+	- vector<string> grouphash();
 		returns a array of string of eventNames whose events
 		are organized in groups
 		
@@ -58,7 +66,7 @@ schedule.h
 		inputs a 1D-array of events, fills it with events
 		of the actual day
 		
-news.h
+spirit/news.h
 ------------------------------------------------------------------
 - struct article:
     string semester;
@@ -72,22 +80,17 @@ news.h
     string news;
     
 - class news()
+	- void cdownload();
+		downloads the news and saves it as news.json
+		
+	- void init();
+		parses the news.json to the class
+
 	- vector<article> get(string filter)
 		string filter: class name to filter to
 		returns a vector of articles that are filtered by
 		string filter
 			"alle" returns every article
-
-spiritget.h
-------------------------------------------------------------------
-CURLcode cshedule(string sclass);
-	sclass: classname that will be downloaded as schedule.json
-	returns 0 on success
-	schedule.json is required to run functions in schedule.h
-
-CURLcode cnews();
-	downloads the news, saves it as news.json
-	returns 0 on succcess
 	
 
 required dependencies:

@@ -12,7 +12,7 @@ void runSched()
 {
     schedule sched;                                          //class initialisation
 
-    //sched.download("bai2");
+    sched.download("bai2");
 
     sched.initJson();
 
@@ -64,7 +64,7 @@ void runNews()
 {
     news fhNews;
 
-    //fhNews.cdownload();
+    fhNews.cdownload();
 
     fhNews.init();
 

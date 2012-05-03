@@ -26,7 +26,7 @@ class schedule
 {
     public:
         void initJson();
-        void download(string sclass) {cschedule(sclass);};
+        void cdownload(string sclass) {cschedule(sclass);};
         vector<string> groupHash();
         void initGrp(map<string,int> groups);
         event * getActual();
