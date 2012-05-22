@@ -457,6 +457,9 @@ double schedule::timeDifference()
         }
     }
 
+    spError exc(spError::NO_EVENT_ERROR);
+    throw (exc);
+
     return -1;
 }
 

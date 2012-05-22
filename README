@@ -34,6 +34,8 @@ spirit/schedule.h
 	
 	- void initJson();
 		parses the schedule.json to the class
+		can throw spError::JSON_ERROR
+			  spError::FALSE_NAMING_ERROR
 	
 	- map<string,int>: hashtable
 		string: classname
@@ -42,6 +44,10 @@ spirit/schedule.h
 	- initGrp(map<string,int>);
 		initalisation of 3D array of events
 		requires hashtable of event names & group number
+		can throw spError::TIME_PARSE_ERROR
+			  spError::DAY_PARSE_ERROR
+			  spError::WEEK_PARSE_ERROR
+			  spError::GROUP_PARSE_ERROR
 		
 	- vector<string> grouphash();
 		returns a array of string of eventNames whose events
@@ -54,9 +60,11 @@ spirit/schedule.h
 	- event * getnext();
 		pointer to next event;
 		returns pointer to NULL if none
+		can throw spError::NO_EVENT_ERROR
 		
 	- double timedifference();
 		time until next event in seconds
+		can throw spError::NO_EVENT_ERROR
 		
 	- void getTimetable(event tcopy[2][7][7]);
 		inputs a 3D-array of events, fills it with
@@ -85,13 +93,32 @@ spirit/news.h
 		
 	- void init();
 		parses the news.json to the class
+		can throw spError::JSON_ERROR
+			  spError::NO_NEWS_ERROR
+			  spError::FALSE_NAMING_ERROR
 
 	- vector<article> get(string filter)
 		string filter: class name to filter to
 		returns a vector of articles that are filtered by
 		string filter
 			"alle" returns every article
-	
+
+spirit/exception.h
+------------------------------------------------------------------
+- class spError
+    - enum Code
+	NO_ERROR,           //0; unused, only for formatting
+        TIME_PARSE_ERROR,   //1; scheduled time invalid
+        DAY_PARSE_ERROR,    //2; scheduled day invalid
+        WEEK_PARSE_ERROR,   //3; scheduled week invalid
+        GROUP_PARSE_ERROR,  //4; group number not 0-9
+        JSON_ERROR,         //5; JSON-code not in correct form
+        CURL_ERROR,         //6; curl write / download fails
+        SAVE_FAIL_ERROR,    //7; couldn't open file
+        HASH_MAP_ERROR,     //8; currently unused
+        NO_EVENT_ERROR,     //9; no event in timetable
+        NO_NEWS_ERROR,      //10; no news in journal
+        FALSE_NAMING_ERROR  //11; unexpected naming in json
 
 required dependencies:
 libcURL		http://curl.haxx.se/

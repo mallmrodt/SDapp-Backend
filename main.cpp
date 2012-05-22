@@ -12,7 +12,7 @@ void runSched()
 {
     schedule sched;                                          //class initialisation
 
-    sched.download("bai2");
+    sched.cdownload("bai2");
 
     sched.initJson();
 

@@ -26,6 +26,11 @@ void cschedule(string sclass)
     rename("schedule.json","_schedule.json");
 
     fp = fopen("schedule.json","w");
+    if(fp==NULL)
+    {
+        spError exc(spError::SAVE_FAIL_ERROR);
+        throw(exc);
+    }
 
     curl = curl_easy_init();
 
